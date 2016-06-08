@@ -162,6 +162,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             self.webdriver.get(self.config.get('proxy_info_url'))
             try:
                 text = re.search(r'(\{.*?\})', self.webdriver.page_source, flags=re.DOTALL).group(0)
+                print(text)
                 ipinfo = json.loads(text)
             except ValueError as v:
                 logger.critical(v)

@@ -289,7 +289,7 @@ def main(return_results=False, parse_cmd_line=True, config_from_dict=None):
     elif proxy_file:
         proxies = parse_proxy_file(proxy_file)
 
-    if config.get('use_own_ip'):
+    if config.get('use_own_ip') or len(proxies) == 0:
         proxies.append(None)
 
     if not proxies:
