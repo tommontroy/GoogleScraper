@@ -500,7 +500,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                     self._save_debug_screenshot()
                     content = self.webdriver.find_element_by_css_selector(selector).text
                     raise Exception('Pagenumber={} did not appear in navigation. Got "{}" instead'\
-                                    .format(self.page_number), content)
+                                    .format(self.page_number, content))
 
         elif self.search_type == 'image':
             self.wait_until_title_contains_keyword()
