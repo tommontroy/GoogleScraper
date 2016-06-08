@@ -134,7 +134,7 @@ class ShowProgressQueue(threading.Thread):
 
             self.num_already_processed += 1
 
-            print(self.progress_fmt.format(self.num_already_processed, self.num_keywords), end='\r')
+            print(self.progress_fmt.format(self.num_already_processed, self.num_keywords), end='\n')
 
             # TODO: FIX THIS!
             # self.verbosity == 2 and self.num_already_processed % 5 == 0:

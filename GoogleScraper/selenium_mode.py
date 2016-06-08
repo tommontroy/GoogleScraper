@@ -187,6 +187,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         """
         tempdir = tempfile.gettempdir()
         location = os.path.join(tempdir, '{}_{}_debug_screenshot.png'.format(self.search_engine_name, self.browser_type))
+        print('Saved screenshot:' + location)
         self.webdriver.get_screenshot_as_file(location)
 
     def _set_xvfb_display(self):
@@ -410,6 +411,10 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         next_url = ''
         element = self._find_next_page_element()
 
+        if element is None:
+            return False
+        
+
         if hasattr(element, 'click'):
             next_url = element.get_attribute('href')
             try:
@@ -455,7 +460,12 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                 WebDriverWait(self.webdriver, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
             except (WebDriverException, TimeoutException) as e:
                 self._save_debug_screenshot()
-                raise Exception('{}: Cannot locate next page element: {}'.format(self.name, str(e)))
+                #raise Exception('{}: Cannot locate next page element: {}'.format(self.name, str(e)))
+                print('Failed to find a page')
+                
+                return None
+
+
 
             return self.webdriver.find_element_by_css_selector(selector)
 
@@ -494,7 +504,8 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             else:
 
                 try:
-                    WebDriverWait(self.webdriver, 5).\
+                    wait = 10 #originally 5
+                    WebDriverWait(self.webdriver, wait).\
             until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector), str(self.page_number)))
                 except TimeoutException as e:
                     self._save_debug_screenshot()
@@ -574,7 +585,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             super().keyword_info()
 
             for self.page_number in self.pages_per_keyword:
-
+                print('Processing Page %d' % (self.page_number))
                 self.wait_until_serp_loaded()
 
                 try:
@@ -621,7 +632,8 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             raise Exception('{}: Aborting due to no available selenium webdriver.'.format(self.name))
 
         try:
-            self.webdriver.set_window_size(400, 400)
+            #self.webdriver.set_window_size(400, 400)
+            self.webdriver.set_window_size(800, 600)
             self.webdriver.set_window_position(400 * (self.browser_num % 4), 400 * (math.floor(self.browser_num // 4)))
         except WebDriverException as e:
             logger.debug('Cannot set window size: {}'.format(e))
