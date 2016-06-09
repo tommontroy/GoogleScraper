@@ -219,7 +219,8 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             if self.proxy:
                 chrome_ops = webdriver.ChromeOptions()
                 chrome_ops.add_argument(
-                    '--proxy-server={}://{}:{}'.format(self.proxy.proto, self.proxy.host, self.proxy.port))
+                    '--proxy-server={}://{}:{}'.format(self.proxy.proto, self.proxy.host, self.proxy.port) + ' --proxy-auth={}:{}'.format(self.proxy.username, self.proxy.password))
+                
                 self.webdriver = webdriver.Chrome(chrome_options=chrome_ops)
             else:
                 self.webdriver = webdriver.Chrome()#service_log_path='/tmp/chromedriver_log.log')
@@ -299,25 +300,30 @@ class SelScrape(SearchEngineScrape, threading.Thread):
 
         needles = self.malicious_request_needles[self.search_engine_name]
 
+        print('Req denied')
         if needles and needles['inurl'] in self.webdriver.current_url \
                 and needles['inhtml'] in self.webdriver.page_source:
-
+                
             if self.config.get('manual_captcha_solving', False):
+                print('Manual captcha')
                 with self.captcha_lock:
                     import tempfile
 
                     tf = tempfile.NamedTemporaryFile('wb')
                     tf.write(self.webdriver.get_screenshot_as_png())
                     import webbrowser
-
+                    print('Captcha file %s' % (tf.name))
                     webbrowser.open('file://{}'.format(tf.name))
                     solution = input('enter the captcha please...')
+                    print('Captcha solution %s' % (solution))
                     self.webdriver.find_element_by_name('submit').send_keys(solution + Keys.ENTER)
+                    """
                     try:
                         self.search_input = WebDriverWait(self.webdriver, 5).until(
                             EC.visibility_of_element_located(self._get_search_input_field()))
                     except TimeoutException:
                         raise MaliciousRequestDetected('Requesting with this ip is not possible at the moment.')
+                    """
                     tf.close()
 
             else:
@@ -505,7 +511,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
             else:
 
                 try:
-                    wait = 10 #originally 5
+                    wait = 5 #originally 5
                     WebDriverWait(self.webdriver, wait).\
             until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, selector), str(self.page_number)))
                 except TimeoutException as e:
@@ -587,8 +593,26 @@ class SelScrape(SearchEngineScrape, threading.Thread):
 
             for self.page_number in self.pages_per_keyword:
                 print('Processing Page %d' % (self.page_number))
-                self.wait_until_serp_loaded()
 
+                # original
+                #self.wait_until_serp_loaded()
+
+                # try to manually override the captcha's
+                captcha = False
+                try:
+                    self.wait_until_serp_loaded()
+                except:
+                    captcha = True
+
+                while captcha:
+                    self.handle_request_denied('400')
+                    captcha = False
+                    try:
+                        self.wait_until_serp_loaded()
+                    except:
+                        captcha = True
+
+                
                 try:
                     self.html = self.webdriver.execute_script('return document.body.innerHTML;')
                 except WebDriverException as e:

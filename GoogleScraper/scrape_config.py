@@ -254,7 +254,7 @@ sel_browser = 'Chrome'
 # Set to False to disable.
 # If the captcha isn't solved in the specified time interval, the browser instance
 # with the current proxy is discarded.
-manual_captcha_solving = False
+manual_captcha_solving = 10
 
 # Xvfb display option
 # You should start xvfb at your own

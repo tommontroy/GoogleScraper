@@ -392,7 +392,6 @@ def main(return_results=False, parse_cmd_line=True, config_from_dict=None):
             for search_engine in search_engines:
 
                 for proxy in proxies:
-
                     for worker in range(num_workers):
                         num_worker += 1
                         workers.put(
