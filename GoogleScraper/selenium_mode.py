@@ -218,9 +218,20 @@ class SelScrape(SearchEngineScrape, threading.Thread):
         try:
             if self.proxy:
                 chrome_ops = webdriver.ChromeOptions()
-                chrome_ops.add_argument(
-                    '--proxy-server={}://{}:{}'.format(self.proxy.proto, self.proxy.host, self.proxy.port) + ' --proxy-auth={}:{}'.format(self.proxy.username, self.proxy.password))
+
+
                 
+                #+ ' --proxy-auth={}:{}'.format(self.proxy.username, self.proxy.password))
+
+                if self.proxy.proto.lower().startswith('socks'):
+                    print('Socks proxy')
+                    chrome_ops.add_argument(
+                        '--proxy-server={}://{}:{}'.format(self.proxy.proto, self.proxy.host, self.proxy.port) + 
+                        ' --proxy-auth={}:{}'.format(self.proxy.username, self.proxy.password))
+                else:
+                    chrome_ops.add_argument(
+                        '--proxy-server={}://{}:{}'.format(self.proxy.proto, self.proxy.host, self.proxy.port))
+                    
                 self.webdriver = webdriver.Chrome(chrome_options=chrome_ops)
             else:
                 self.webdriver = webdriver.Chrome()#service_log_path='/tmp/chromedriver_log.log')
