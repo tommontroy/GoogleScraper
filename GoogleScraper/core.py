@@ -181,6 +181,7 @@ def main(return_results=False, parse_cmd_line=True, config_from_dict=None):
         print(__version__)
         return
 
+    os.remove('google_scraper.db')
     if config.get('clean', False):
         try:
             os.remove('google_scraper.db')

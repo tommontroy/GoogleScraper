@@ -615,6 +615,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                 except:
                     captcha = True
 
+                """#disabled in favor of manual work
                 while captcha:
                     self.handle_request_denied('400')
                     captcha = False
@@ -622,7 +623,7 @@ class SelScrape(SearchEngineScrape, threading.Thread):
                         self.wait_until_serp_loaded()
                     except:
                         captcha = True
-
+                """
                 
                 try:
                     self.html = self.webdriver.execute_script('return document.body.innerHTML;')
